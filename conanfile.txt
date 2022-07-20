@@ -1,0 +1,10 @@
+[requires]
+glfw/3.3.6
+imgui/cci.20220621+1.88.docking
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[imports]
+./res/bindings, * -> ./ImGuiBackendsImpl @ root_package=imgui
