@@ -3,14 +3,13 @@
 
 #include <functional>
 #include <string>
-#include <string_view>
 
 namespace ImApp
 {
     class Application
     {
     public:
-        Application(int width, int height, std::string_view title);
+        Application(int width, int height, const char* title);
 
         int run(const std::function<void()>& updateFunction);
 

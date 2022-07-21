@@ -23,7 +23,7 @@ namespace
 
 namespace ImApp
 {
-    Application::Application(int width, int height, std::string_view title) :
+    Application::Application(int width, int height, const char* title) :
         m_width(width),
         m_height(height),
         m_title(title)
