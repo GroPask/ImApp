@@ -45,7 +45,16 @@ dp_configure_target(${PROJECT_NAME}
 )
 
 if (IMAPP_INSTALL)
+    set(exportDestDir ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+    set(imAppConfigOut ${CMAKE_CURRENT_BINARY_DIR}/ImAppConfig.cmake)
+    set(imAppVersionOut ${CMAKE_CURRENT_BINARY_DIR}/ImAppConfigVersion.cmake)
+
+    include(CMakePackageConfigHelpers) 
+    configure_package_config_file(cmake/ImAppConfig.cmake.in ${imAppConfigOut} INSTALL_DESTINATION ${exportDestDir})
+    write_basic_package_version_file(${imAppVersionOut} COMPATIBILITY SameMajorVersion)
+
     install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets)
     install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/)
-    install(EXPORT ${PROJECT_NAME}Targets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} NAMESPACE ${PROJECT_NAME}:: FILE ${PROJECT_NAME}Targets.cmake)
+    install(EXPORT ${PROJECT_NAME}Targets DESTINATION ${exportDestDir} NAMESPACE ${PROJECT_NAME}:: FILE ${PROJECT_NAME}Targets.cmake)    
+    install(FILES ${imAppConfigOut} ${imAppVersionOut} DESTINATION ${exportDestDir})
 endif ()
