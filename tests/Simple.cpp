@@ -1,6 +1,6 @@
 #include <ImApp/ImApp.hpp>
 
-int main(int, char**)
+int main()
 {
     ImApp::Application app(1280, 720, "ImApp_Test_Simple");
 
