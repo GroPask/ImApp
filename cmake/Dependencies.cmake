@@ -37,7 +37,7 @@ if (NOT imgui_FOUND)
 
         file(COPY ${imgui_SOURCE_DIR}/backends/ DESTINATION ${CMAKE_BINARY_DIR}/ImGuiBackendsImpl)
 
-        include(ImGuiCMakeGenerator.cmake)
+        include(cmake/ImGuiCMakeGenerator.cmake)
         generateImGuiCMakeFiles(${imgui_SOURCE_DIR})
 
         add_subdirectory(${imgui_SOURCE_DIR} ${imgui_BINARY_DIR})
