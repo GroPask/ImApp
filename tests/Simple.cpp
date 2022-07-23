@@ -1,17 +1,14 @@
 #include <ImApp/ImApp.hpp>
 
-int main(int /*argc*/, char** /*argv*/)
+int main(int, char**)
 {
     ImApp::Application app(1280, 720, "ImApp_Test_Simple");
 
     return app.run([&]()
     {
-        if (ImGui::Begin("WindowA"))
-        {
-            if (ImGui::Button("Close"))
-                app.close();
-        }
+        ImGui::Text("Hello World");
 
-        ImGui::End();
+        if (ImGui::Button("Close"))
+            app.close();
     });
 }
