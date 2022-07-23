@@ -23,7 +23,7 @@ if (NOT glfw3_FOUND)
 endif ()
 
 find_package(imgui QUIET)
-if (NOT imgui)
+if (NOT imgui_FOUND)
     FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
         GIT_TAG 9cd9c2eff99877a3f10a7f9c2a3a5b9c15ea36c6
@@ -66,3 +66,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ImGuiConfig.cmake ${CMAKE_CURRENT_BINA
 endif ()
 
 find_package(OpenGL REQUIRED)
+if (NOT TARGET opengl::opengl)
+    add_library(opengl::opengl ALIAS OpenGL::GL) # Create fake Conan OpenGl pointing to CMake OpenGl
+endif ()

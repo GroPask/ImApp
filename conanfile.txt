@@ -1,6 +1,7 @@
 [requires]
 glfw/3.3.6
 imgui/cci.20220621+1.88.docking
+opengl/system
 
 [generators]
 CMakeDeps

@@ -30,7 +30,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ImGuiBackendsImpl>
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui PRIVATE glfw OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui PRIVATE glfw opengl::opengl)
 target_sources(${PROJECT_NAME} PRIVATE conanfile.txt)
 
 add_subdirectory(cmake)
