@@ -20,10 +20,6 @@ if (NOT glfw3_FOUND)
         GIT_TAG 3.3.6
     )
     FetchContent_MakeAvailable(glfw3)
-
-    find_package(OpenGL REQUIRED)
-
-    target_link_libraries(glfw PUBLIC OpenGL::GL)
 endif ()
 
 find_package(imgui QUIET)
@@ -68,3 +64,5 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ImGuiConfig.cmake ${CMAKE_CURRENT_BINA
         add_subdirectory(${imgui_SOURCE_DIR} ${imgui_BINARY_DIR})
     endif ()
 endif ()
+
+find_package(OpenGL REQUIRED)

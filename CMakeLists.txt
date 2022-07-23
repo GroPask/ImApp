@@ -18,6 +18,7 @@ option(IMAPP_INSTALL "Generate the install target" ${IMAPP_MASTER_PROJECT})
 
 #find_package(glfw3 REQUIRED)
 #find_package(imgui REQUIRED)
+#find_package(OpenGL REQUIRED)
 
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -29,7 +30,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ImGuiBackendsImpl>
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui PRIVATE glfw OpenGL::GL)
 target_sources(${PROJECT_NAME} PRIVATE conanfile.txt)
 
 add_subdirectory(cmake)
