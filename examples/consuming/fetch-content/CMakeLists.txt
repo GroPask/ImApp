@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.0)
 
-project(ImApp_ConsumingExample_CMakeInstall LANGUAGES CXX)
+project(ImApp_ConsumingExample_FetchContent LANGUAGES CXX)
 
 include(FetchContent)
 
