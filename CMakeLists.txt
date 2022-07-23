@@ -16,8 +16,8 @@ endif ()
 option(IMAPP_BUILD_TESTS "Build tests programs" ${IMAPP_MASTER_PROJECT})
 option(IMAPP_INSTALL "Generate the install target" ${IMAPP_MASTER_PROJECT})
 
-find_package(glfw3 REQUIRED)
-find_package(imgui REQUIRED)
+#find_package(glfw3 REQUIRED)
+#find_package(imgui REQUIRED)
 
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -47,5 +47,5 @@ dp_configure_target(${PROJECT_NAME}
 if (IMAPP_INSTALL)
     install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets)
     install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/)
-    install(EXPORT ${PROJECT_NAME}Targets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} NAMESPACE ${PROJECT_NAME}:: FILE ${PROJECT_NAME}ConfigTargets.cmake)
+    install(EXPORT ${PROJECT_NAME}Targets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} NAMESPACE ${PROJECT_NAME}:: FILE ${PROJECT_NAME}Targets.cmake)
 endif ()
