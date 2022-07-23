@@ -2,7 +2,7 @@
 
 int main(int, char**)
 {
-    ImApp::Application app(1280, 720, "ImApp_ConsumingExample_CMakeInstall");
+    ImApp::Application app(1280, 720, "ImApp_ConsumingExample_FetchContent");
 
     return app.run([&]()
     {
