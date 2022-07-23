@@ -51,6 +51,8 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})]=] imGuiCMak
 if (IMGUI_INSTALL)
 include(GNUInstallDirs)]=] imGuiCMakeListsContent "${imGuiCMakeListsContent}")
         string(REPLACE [=[install(TARGETS ${PROJECT_NAME}]=] [=[install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets]=] imGuiCMakeListsContent "${imGuiCMakeListsContent}")
+        string(REPLACE [=[install(TARGETS ${BINARY_TO_COMPRESSED_BIN}
+        DESTINATION ${CMAKE_INSTALL_BINDIR})]=] "" imGuiCMakeListsContent "${imGuiCMakeListsContent}")
         file(WRITE ${imgui_SOURCE_DIR}/CMakeLists.txt "${imGuiCMakeListsContent}")
 
         file(APPEND ${imgui_SOURCE_DIR}/CMakeLists.txt [=[include(CMakePackageConfigHelpers)
