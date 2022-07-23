@@ -16,10 +16,6 @@ dp_configure_global(
     DEFAULT_CONFIGURATIONS Debug Release
 )
 
-#find_package(glfw3 REQUIRED)
-#find_package(imgui REQUIRED)
-#find_package(OpenGL REQUIRED)
-
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
