@@ -8,3 +8,9 @@ target_sources(${PROJECT_NAME} PRIVATE CMakeLists.txt
     ${srcDir}/ImGuiImplGlfw.cpp
     ${srcDir}/ImGuiImplOpenGl3.cpp
 )
+
+if (WIN32)
+    target_sources(${PROJECT_NAME} PRIVATE
+        ${srcDir}/WinMain.cpp
+    )
+endif ()
