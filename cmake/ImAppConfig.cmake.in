@@ -4,6 +4,7 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(glfw3)
 find_dependency(imgui)
+find_dependency(OpenGl)
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/ImAppTargets.cmake" )
 
