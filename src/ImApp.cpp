@@ -14,6 +14,15 @@
 #include <cstdio>
 #include <cstdlib>
 
+namespace ImApp
+{
+    namespace details
+    {
+        void HideCloseButton(GLFWwindow& window) noexcept;
+        void ShowCloseButton(GLFWwindow& window) noexcept;
+    }
+}
+
 namespace
 {
     struct ImAppContext
@@ -30,12 +39,16 @@ namespace
 
         int Terminate() noexcept;
 
+        void HideMainCloseButtonIfNeeded(bool* open) noexcept;
+        void ShowMainCloseButtonIfNeeded(bool* open) noexcept;
+
         int NotInitTerminateFunc() noexcept;
         int OnlyGlfwInitTerminateFunc() noexcept;
         int StandardTerminateFunc() noexcept;
 
         int (ImAppContext::*terminateFunc)() noexcept = &ImAppContext::NotInitTerminateFunc;
-        GLFWwindow* mainWindow = nullptr;        
+        GLFWwindow* mainWindow = nullptr;
+        void (ImAppContext::* manageMainCloseButtonFunc)(bool* open) noexcept = &ImAppContext::HideMainCloseButtonIfNeeded;
     };
 
     ImAppContext ImAppGlobalContext;
@@ -54,6 +67,7 @@ namespace
             return false;
 
         terminateFunc = &ImAppContext::OnlyGlfwInitTerminateFunc;
+        manageMainCloseButtonFunc = &ImAppContext::HideMainCloseButtonIfNeeded;
 
         // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -156,6 +170,8 @@ namespace
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
 
+        (this->*manageMainCloseButtonFunc)(open);
+
         return true;
     }
 
@@ -199,6 +215,30 @@ namespace
     int ImAppContext::Terminate() noexcept
     {
         return (this->*terminateFunc)();
+    }
+
+    void ImAppContext::HideMainCloseButtonIfNeeded(bool* open) noexcept
+    {
+        assert(mainWindow != nullptr);
+
+        if (open != nullptr)
+            return;
+
+        ImApp::details::HideCloseButton(*mainWindow);
+
+        manageMainCloseButtonFunc = &ImAppContext::ShowMainCloseButtonIfNeeded;
+    }
+
+    void ImAppContext::ShowMainCloseButtonIfNeeded(bool* open) noexcept
+    {
+        assert(mainWindow != nullptr);
+
+        if (open == nullptr)
+            return;
+
+        ImApp::details::ShowCloseButton(*mainWindow);
+
+        manageMainCloseButtonFunc = &ImAppContext::HideMainCloseButtonIfNeeded;
     }
 
     int ImAppContext::NotInitTerminateFunc() noexcept
