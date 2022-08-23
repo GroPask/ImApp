@@ -31,7 +31,7 @@ namespace
 
         static constexpr ImVec4 ClearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-        bool Init(const char* mainWindowTitle) noexcept;
+        bool Init(const char* mainWindowTitle, ImApp::AppFlags appFlags) noexcept;
 
         bool PollEvents(bool* open) noexcept;
         void BeginFrame() noexcept;
@@ -58,7 +58,7 @@ namespace
         std::fprintf(stderr, "Glfw Error %d: %s\n", error, description);
     }
 
-    bool ImAppContext::Init(const char* mainWindowTitle) noexcept
+    bool ImAppContext::Init(const char* mainWindowTitle, ImApp::AppFlags appFlags) noexcept
     {
         assert(mainWindow == nullptr);
 
@@ -91,6 +91,9 @@ namespace
         //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
         //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
+
+        if (appFlags.Has(ImApp::AppFlag::MainWindow_NoResize))
+            glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         // Create window with graphics context
         mainWindow = glfwCreateWindow(1280, 720, mainWindowTitle, nullptr, nullptr);
@@ -274,9 +277,9 @@ namespace
     }
 }
 
-bool ImApp::Init(const char* mainWindowTitle) noexcept
+bool ImApp::Init(const char* mainWindowTitle, AppFlags appFlags) noexcept
 {
-    return ImAppGlobalContext.Init(mainWindowTitle);
+    return ImAppGlobalContext.Init(mainWindowTitle, appFlags);
 }
 
 int ImApp::Terminate() noexcept
