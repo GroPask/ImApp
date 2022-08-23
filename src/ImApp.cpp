@@ -301,3 +301,28 @@ void ImApp::EndFrame() noexcept
 {
     ImAppGlobalContext.EndFrame();
 }
+
+bool ImApp::BeginMainWindowContent() noexcept
+{
+    // Implementation found at https://github.com/ocornut/imgui/issues/3541
+
+#ifdef IMGUI_HAS_VIEWPORT
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+    ImGui::SetNextWindowViewport(viewport->ID);
+#else 
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+#endif
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+
+    return ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
+}
+
+void ImApp::EndMainWindowContent() noexcept
+{
+    ImGui::End();
+    ImGui::PopStyleVar(1);
+}

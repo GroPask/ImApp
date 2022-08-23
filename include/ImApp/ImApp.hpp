@@ -64,6 +64,13 @@ namespace ImApp
 	template <class F> void Update(bool* open, F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)()));
 
 	int Terminate() noexcept;
+
+	// Configuration api
+	//void SetMainWindowSize(int witdh, int height, cond...);
+
+	// Main window api
+	bool BeginMainWindowContent() noexcept;
+	void EndMainWindowContent() noexcept;
 }
 
 #include <ImApp/ImApp.inl>
