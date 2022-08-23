@@ -11,6 +11,6 @@ target_sources(${PROJECT_NAME} PRIVATE CMakeLists.txt
 
 if (WIN32)
     target_sources(${PROJECT_NAME} PRIVATE
-        ${srcDir}/WinMain.cpp
+        ${srcDir}/ImAppWindows.cpp
     )
 endif ()
