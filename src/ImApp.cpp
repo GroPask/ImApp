@@ -39,6 +39,9 @@ namespace
 
         int Terminate() noexcept;
 
+        bool BeginMainWindowContent() noexcept;
+        void EndMainWindowContent() noexcept;
+
         void HideMainCloseButtonIfNeeded(bool* open) noexcept;
         void ShowMainCloseButtonIfNeeded(bool* open) noexcept;
 
@@ -47,8 +50,9 @@ namespace
         int StandardTerminateFunc() noexcept;
 
         int (ImAppContext::*terminateFunc)() noexcept = &ImAppContext::NotInitTerminateFunc;
-        GLFWwindow* mainWindow = nullptr;
         void (ImAppContext::* manageMainCloseButtonFunc)(bool* open) noexcept = &ImAppContext::HideMainCloseButtonIfNeeded;
+
+        GLFWwindow* mainWindow = nullptr;        
     };
 
     ImAppContext ImAppGlobalContext;
@@ -220,6 +224,35 @@ namespace
         return (this->*terminateFunc)();
     }
 
+    bool ImAppContext::BeginMainWindowContent() noexcept
+    {
+        assert(mainWindow != nullptr);
+
+        // Implementation found at https://github.com/ocornut/imgui/issues/3541
+
+#ifdef IMGUI_HAS_VIEWPORT
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->WorkPos);
+        ImGui::SetNextWindowSize(viewport->WorkSize);
+        ImGui::SetNextWindowViewport(viewport->ID);
+#else 
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+        ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+#endif
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
+
+        const int mainWindowIsIconified = glfwGetWindowAttrib(mainWindow, GLFW_ICONIFIED);
+        return !static_cast<bool>(mainWindowIsIconified);
+    }
+
+    void ImAppContext::EndMainWindowContent() noexcept
+    {
+        ImGui::End();
+        ImGui::PopStyleVar(1);
+    }
+
     void ImAppContext::HideMainCloseButtonIfNeeded(bool* open) noexcept
     {
         assert(mainWindow != nullptr);
@@ -304,29 +337,10 @@ void ImApp::EndFrame() noexcept
 
 bool ImApp::BeginMainWindowContent() noexcept
 {
-    assert(ImAppGlobalContext.mainWindow != nullptr);
-
-    // Implementation found at https://github.com/ocornut/imgui/issues/3541
-
-#ifdef IMGUI_HAS_VIEWPORT
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(viewport->WorkPos);
-    ImGui::SetNextWindowSize(viewport->WorkSize);
-    ImGui::SetNextWindowViewport(viewport->ID);
-#else 
-    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-#endif
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
-
-    const int mainWindowIsIconified = glfwGetWindowAttrib(ImAppGlobalContext.mainWindow, GLFW_ICONIFIED);
-    return !static_cast<bool>(mainWindowIsIconified);
+    return ImAppGlobalContext.BeginMainWindowContent();
 }
 
 void ImApp::EndMainWindowContent() noexcept
 {
-    ImGui::End();
-    ImGui::PopStyleVar(1);
+    ImAppGlobalContext.EndMainWindowContent();
 }
