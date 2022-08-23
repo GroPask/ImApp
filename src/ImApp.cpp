@@ -304,6 +304,8 @@ void ImApp::EndFrame() noexcept
 
 bool ImApp::BeginMainWindowContent() noexcept
 {
+    assert(ImAppGlobalContext.mainWindow != nullptr);
+
     // Implementation found at https://github.com/ocornut/imgui/issues/3541
 
 #ifdef IMGUI_HAS_VIEWPORT
@@ -317,8 +319,10 @@ bool ImApp::BeginMainWindowContent() noexcept
 #endif
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
 
-    return ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
+    const int mainWindowIsIconified = glfwGetWindowAttrib(ImAppGlobalContext.mainWindow, GLFW_ICONIFIED);
+    return !static_cast<bool>(mainWindowIsIconified);
 }
 
 void ImApp::EndMainWindowContent() noexcept
