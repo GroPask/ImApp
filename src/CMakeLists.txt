@@ -2,9 +2,9 @@ set(srcDir .)
 set(incDir ../include/ImApp)
 
 target_sources(${PROJECT_NAME} PRIVATE CMakeLists.txt
-    ${srcDir}/Application.cpp
-    ${incDir}/Application.hpp
+    ${srcDir}/ImApp.cpp
     ${incDir}/ImApp.hpp
+    ${incDir}/ImApp.inl
     ${srcDir}/ImGuiImplGlfw.cpp
     ${srcDir}/ImGuiImplOpenGl3.cpp
 )

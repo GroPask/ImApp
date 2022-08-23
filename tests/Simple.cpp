@@ -2,13 +2,13 @@
 
 int main()
 {
-    ImApp::Application app(1280, 720, "ImApp_Test_Simple");
-
-    return app.run([&]()
+    return ImApp::Run("ImApp_Test_Simple", [&]()
     {
         ImGui::Text("Hello World");
-
+    
         if (ImGui::Button("Close"))
-            app.close();
+            return false;
+    
+        return true;
     });
 }

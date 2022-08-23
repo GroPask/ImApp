@@ -2,13 +2,13 @@
 
 int main()
 {
-    ImApp::Application app(1280, 720, "ImApp_ConsumingExample_FetchContent");
-
-    return app.run([&]()
+    return ImApp::Run("ImApp_ConsumingExample_FetchContent", [&]()
     {
         ImGui::Text("Hello World");
 
         if (ImGui::Button("Close"))
-            app.close();
+            return false;
+
+        return true;
     });
 }
