@@ -37,18 +37,18 @@ namespace ImApp
 
         AppFlags m_appFlags;
 
-        unsigned long long frameCount = 0;
+        unsigned long long m_frameCount = 0;
 
-        bool mainWindowSizeHasBeenLoaded = false;
-        int mainWindowLoadedWidth = 0;
-        int mainWindowLoadedHeight = 0;
+        bool m_mainWindowSizeHasBeenLoaded = false;
+        int m_mainWindowLoadedWidth = 0;
+        int m_mainWindowLoadedHeight = 0;
 
-        int (Context::* terminateFunc)() noexcept = &Context::NotInitTerminateFunc;
-        void (Context::* manageMainCloseButtonFunc)(bool* open) noexcept = &Context::HideMainCloseButtonIfNeeded;
+        int (Context::* m_terminateFunc)() noexcept = &Context::NotInitTerminateFunc;
+        void (Context::* m_manageMainCloseButtonFunc)(bool* open) noexcept = &Context::HideMainCloseButtonIfNeeded;
 
-        GLFWwindow* mainWindow = nullptr;
-        bool mainWindowHasBeenResizedByUser = false;
-        bool currentlyResizeMainWindow = false;
+        GLFWwindow* m_mainWindow = nullptr;
+        bool m_mainWindowHasBeenResizedByUser = false;
+        bool m_isCurrentlyResizingMainWindow = false;
     };
 }
 

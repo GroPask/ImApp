@@ -22,7 +22,7 @@
 
 bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexcept
 {
-    assert(mainWindow == nullptr);
+    assert(m_mainWindow == nullptr);
 
     glfwSetErrorCallback([](int error, const char* description)
     {
@@ -32,7 +32,7 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
     if (!glfwInit())
         return false;
 
-    terminateFunc = &Context::OnlyGlfwInitTerminateFunc;
+    m_terminateFunc = &Context::OnlyGlfwInitTerminateFunc;
 
     // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -61,20 +61,20 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     // Create window with graphics context
-    mainWindow = glfwCreateWindow(1280, 720, mainWindowTitle, nullptr, nullptr);
-    if (mainWindow == nullptr)
+    m_mainWindow = glfwCreateWindow(1280, 720, mainWindowTitle, nullptr, nullptr);
+    if (m_mainWindow == nullptr)
         return false;
 
     m_appFlags = appFlags;
-    frameCount = 0;
-    mainWindowSizeHasBeenLoaded = false;
-    terminateFunc = &Context::StandardTerminateFunc;
-    manageMainCloseButtonFunc = &Context::HideMainCloseButtonIfNeeded;
-    mainWindowHasBeenResizedByUser = false;
+    m_frameCount = 0;
+    m_mainWindowSizeHasBeenLoaded = false;
+    m_terminateFunc = &Context::StandardTerminateFunc;
+    m_manageMainCloseButtonFunc = &Context::HideMainCloseButtonIfNeeded;
+    m_mainWindowHasBeenResizedByUser = false;
 
-    glfwSetWindowUserPointer(mainWindow, this);
+    glfwSetWindowUserPointer(m_mainWindow, this);
 
-    glfwSetWindowSizeCallback(mainWindow, [](GLFWwindow* window, int /*width*/, int /*height*/)
+    glfwSetWindowSizeCallback(m_mainWindow, [](GLFWwindow* window, int /*width*/, int /*height*/)
     {
         assert(window != nullptr);
 
@@ -84,7 +84,7 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
         context->OnMainWindowResized();
     });
 
-    glfwMakeContextCurrent(mainWindow);
+    glfwMakeContextCurrent(m_mainWindow);
     glfwSwapInterval(1); // Enable vsync
 
     // Setup Dear ImGui context
@@ -145,7 +145,7 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
     ImGui::AddSettingsHandler(&settingsHandler);
 
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
+    ImGui_ImplGlfw_InitForOpenGL(m_mainWindow, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Load Fonts
@@ -168,14 +168,14 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
 
 bool ImApp::Context::PollEvents(bool* open) noexcept
 {
-    assert(mainWindow != nullptr);
+    assert(m_mainWindow != nullptr);
 
     if (open != nullptr)
     {
-        if (glfwWindowShouldClose(mainWindow))
+        if (glfwWindowShouldClose(m_mainWindow))
         {
             *open = false;
-            glfwSetWindowShouldClose(mainWindow, GL_FALSE); // Just catch the event, don't want to persits next frame
+            glfwSetWindowShouldClose(m_mainWindow, GL_FALSE); // Just catch the event, don't want to persits next frame
             return false;
         }
 
@@ -189,7 +189,7 @@ bool ImApp::Context::PollEvents(bool* open) noexcept
     // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
     glfwPollEvents();
 
-    (this->*manageMainCloseButtonFunc)(open);
+    (this->*m_manageMainCloseButtonFunc)(open);
 
     return true;
 }
@@ -204,14 +204,14 @@ void ImApp::Context::BeginFrame() noexcept
 
 void ImApp::Context::EndFrame() noexcept
 {
-    assert(mainWindow != nullptr);
+    assert(m_mainWindow != nullptr);
 
     static constexpr ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Rendering
     ImGui::Render();
     int display_w, display_h;
-    glfwGetFramebufferSize(mainWindow, &display_w, &display_h);
+    glfwGetFramebufferSize(m_mainWindow, &display_w, &display_h);
     glViewport(0, 0, display_w, display_h);
     glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -230,19 +230,19 @@ void ImApp::Context::EndFrame() noexcept
         glfwMakeContextCurrent(backup_current_context);
     }
 
-    glfwSwapBuffers(mainWindow);
+    glfwSwapBuffers(m_mainWindow);
 
-    ++frameCount;
+    ++m_frameCount;
 }
 
 int ImApp::Context::Terminate() noexcept
 {
-    return (this->*terminateFunc)();
+    return (this->*m_terminateFunc)();
 }
 
 bool ImApp::Context::BeginMainWindowContent() noexcept
 {
-    assert(mainWindow != nullptr);
+    assert(m_mainWindow != nullptr);
 
     // Implementation found at https://github.com/ocornut/imgui/issues/3541
 
@@ -259,7 +259,7 @@ bool ImApp::Context::BeginMainWindowContent() noexcept
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
-    const int mainWindowIsIconified = glfwGetWindowAttrib(mainWindow, GLFW_ICONIFIED);
+    const int mainWindowIsIconified = glfwGetWindowAttrib(m_mainWindow, GLFW_ICONIFIED);
     return !static_cast<bool>(mainWindowIsIconified);
 }
 
@@ -271,24 +271,24 @@ void ImApp::Context::EndMainWindowContent() noexcept
 
 void ImApp::Context::OnMainWindowResized() noexcept
 {
-    if (!currentlyResizeMainWindow)
+    if (!m_isCurrentlyResizingMainWindow)
     {
-        mainWindowHasBeenResizedByUser = true;
+        m_mainWindowHasBeenResizedByUser = true;
 
-        glfwSetWindowSizeCallback(mainWindow, nullptr); // We don't need callback anymore
+        glfwSetWindowSizeCallback(m_mainWindow, nullptr); // We don't need callback anymore
     }
 }
 
 void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
 {
     assert(line != nullptr);
-    assert(mainWindow != nullptr);
+    assert(m_mainWindow != nullptr);
 
     int mainWindowX;
     int mainWindowY;
     if (std::sscanf(line, "MainWindowPos=%d,%d\n", &mainWindowX, &mainWindowY) == 2)
     {
-        glfwSetWindowPos(mainWindow, mainWindowX, mainWindowY);
+        glfwSetWindowPos(m_mainWindow, mainWindowX, mainWindowY);
         return;
     }
 
@@ -298,11 +298,11 @@ void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
         int mainWindowHeight;
         if (std::sscanf(line, "MainWindowSize=%d,%d\n", &mainWindowWidth, &mainWindowHeight) == 2)
         {
-            mainWindowSizeHasBeenLoaded = true;
+            m_mainWindowSizeHasBeenLoaded = true;
 
-            currentlyResizeMainWindow = true;
-            glfwSetWindowSize(mainWindow, mainWindowWidth, mainWindowHeight);
-            currentlyResizeMainWindow = false;
+            m_isCurrentlyResizingMainWindow = true;
+            glfwSetWindowSize(m_mainWindow, mainWindowWidth, mainWindowHeight);
+            m_isCurrentlyResizingMainWindow = false;
 
             return;
         }
@@ -311,19 +311,19 @@ void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
 
 void ImApp::Context::WriteAllMainSaveData(ImGuiTextBuffer& textBuffer) const noexcept
 {
-    assert(mainWindow != nullptr);
+    assert(m_mainWindow != nullptr);
 
     int mainWindowX;
     int mainWindowY;
-    glfwGetWindowPos(mainWindow, &mainWindowX, &mainWindowY);
+    glfwGetWindowPos(m_mainWindow, &mainWindowX, &mainWindowY);
 
     textBuffer.appendf("MainWindowPos=%d,%d\n", mainWindowX, mainWindowY);
 
-    if (mainWindowSizeHasBeenLoaded || mainWindowHasBeenResizedByUser)
+    if (m_mainWindowSizeHasBeenLoaded || m_mainWindowHasBeenResizedByUser)
     {
         int mainWindowWidth;
         int mainWindowHeight;
-        glfwGetWindowSize(mainWindow, &mainWindowWidth, &mainWindowHeight);
+        glfwGetWindowSize(m_mainWindow, &mainWindowWidth, &mainWindowHeight);
 
         textBuffer.appendf("MainWindowSize=%d,%d\n", mainWindowWidth, mainWindowHeight);
     }
@@ -331,26 +331,26 @@ void ImApp::Context::WriteAllMainSaveData(ImGuiTextBuffer& textBuffer) const noe
 
 void ImApp::Context::HideMainCloseButtonIfNeeded(bool* open) noexcept
 {
-    assert(mainWindow != nullptr);
+    assert(m_mainWindow != nullptr);
 
     if (open != nullptr)
         return;
 
-    HideCloseButton(*mainWindow);
+    HideCloseButton(*m_mainWindow);
 
-    manageMainCloseButtonFunc = &Context::ShowMainCloseButtonIfNeeded;
+    m_manageMainCloseButtonFunc = &Context::ShowMainCloseButtonIfNeeded;
 }
 
 void ImApp::Context::ShowMainCloseButtonIfNeeded(bool* open) noexcept
 {
-    assert(mainWindow != nullptr);
+    assert(m_mainWindow != nullptr);
 
     if (open == nullptr)
         return;
 
-    ShowCloseButton(*mainWindow);
+    ShowCloseButton(*m_mainWindow);
 
-    manageMainCloseButtonFunc = &Context::HideMainCloseButtonIfNeeded;
+    m_manageMainCloseButtonFunc = &Context::HideMainCloseButtonIfNeeded;
 }
 
 int ImApp::Context::NotInitTerminateFunc() noexcept
@@ -360,7 +360,7 @@ int ImApp::Context::NotInitTerminateFunc() noexcept
 
 int ImApp::Context::OnlyGlfwInitTerminateFunc() noexcept
 {
-    assert(mainWindow == nullptr);
+    assert(m_mainWindow == nullptr);
 
     glfwTerminate();
 
@@ -369,18 +369,18 @@ int ImApp::Context::OnlyGlfwInitTerminateFunc() noexcept
 
 int ImApp::Context::StandardTerminateFunc() noexcept
 {
-    assert(mainWindow != nullptr);
+    assert(m_mainWindow != nullptr);
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    glfwDestroyWindow(mainWindow);
+    glfwDestroyWindow(m_mainWindow);
     glfwTerminate();
 
-    terminateFunc = &Context::NotInitTerminateFunc;
-    mainWindow = nullptr;
+    m_terminateFunc = &Context::NotInitTerminateFunc;
+    m_mainWindow = nullptr;
 
     return EXIT_SUCCESS;
 }
