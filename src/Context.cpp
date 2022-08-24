@@ -340,7 +340,8 @@ void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
         return;
     }
 
-    if (!m_appFlags.Has(AppFlag::MainWindow_NoResize) && // Force ignore maybe previously saved size (with a version of this app without NoResize flag)
+    if (!m_appFlags.HasOneOf(AppFlag::MainWindow_NoSaveSize |
+                             AppFlag::MainWindow_NoResize) && // Force ignore maybe previously saved size (with a version of this app without NoResize flag)
         (!m_mainWindowSizeHasBeenSet || m_mainWindowSizeCond != Cond::Always)) // If MainWindowSize as been setted and Cond == Always, no needs to load size because we want to use the size given by the user at each new app launch
     {
         int mainWindowWidth;
@@ -365,7 +366,8 @@ void ImApp::Context::WriteAllMainSaveData(ImGuiTextBuffer& textBuffer) const noe
 
     textBuffer.appendf("MainWindowPos=%d,%d\n", mainWindowX, mainWindowY);
 
-    if ((m_mainWindowSizeHasBeenLoaded || m_mainWindowHasBeenResizedByUser) && 
+    if (!m_appFlags.HasOneOf(AppFlag::MainWindow_NoSaveSize) &&
+        (m_mainWindowSizeHasBeenLoaded || m_mainWindowHasBeenResizedByUser) &&
         (!m_mainWindowSizeHasBeenSet || m_mainWindowSizeCond != Cond::Always)) // If MainWindowSize as been setted and Cond == Always, no needs to save size because we want to use the size given by the user at each new app launch
     {
         int mainWindowWidth;

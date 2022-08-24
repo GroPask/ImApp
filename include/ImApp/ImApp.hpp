@@ -16,7 +16,8 @@ namespace ImApp
 
 	enum class AppFlag
 	{
-		MainWindow_NoResize = (1 << 0),
+		MainWindow_NoResize   = (1 << 0),
+		MainWindow_NoSaveSize = (1 << 1),
 	};
 	IMAPP_DECLARE_FLAGS(AppFlags, AppFlag)
 
