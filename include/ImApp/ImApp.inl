@@ -27,11 +27,11 @@ namespace ImApp
 				});
 			}
 		};
-	}
 
-	bool PollEvents(bool* open) noexcept;
-	void BeginFrame() noexcept;
-	void EndFrame() noexcept;
+		bool PollEvents(bool* open) noexcept;
+		void BeginFrame() noexcept;
+		void EndFrame() noexcept;
+	}
 }
 
 template <class F>
@@ -58,10 +58,10 @@ void ImApp::Update(F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)()))
 template <class F>
 void ImApp::Update(bool* open, F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)()))
 {
-	if (!PollEvents(open))
+	if (!details::PollEvents(open))
 		return;
 
-	BeginFrame();
+	details::BeginFrame();
 	IMAPP_FWD(updateFunc)();
-	EndFrame();
+	details::EndFrame();
 }
