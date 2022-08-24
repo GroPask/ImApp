@@ -24,6 +24,9 @@ namespace ImApp
 
     private:
         void OnMainWindowResized() noexcept;
+        void SetMainWindowSize(int width, int height) noexcept;
+
+        bool CanMakeMainWindowSizeFitContent() const noexcept;
 
         void ReadMainSaveDataLine(const char* line) noexcept;
         void WriteAllMainSaveData(ImGuiTextBuffer& textBuffer) const noexcept;
@@ -36,6 +39,7 @@ namespace ImApp
         int StandardTerminateFunc() noexcept;
 
         AppFlags m_appFlags;
+        int mainWindowTitleLen;
 
         unsigned long long m_frameCount;
         bool m_mainWindowSizeHasBeenLoaded;

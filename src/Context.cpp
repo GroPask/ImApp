@@ -13,6 +13,8 @@
 
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 
+#include <algorithm>
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -66,6 +68,7 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
         return false;
 
     m_appFlags = appFlags;
+    mainWindowTitleLen = static_cast<int>(std::strlen(mainWindowTitle));
     m_frameCount = 0;
     m_mainWindowSizeHasBeenLoaded = false;
     m_terminateFunc = &Context::StandardTerminateFunc;
@@ -250,11 +253,13 @@ bool ImApp::Context::BeginMainWindowContent() noexcept
 #ifdef IMGUI_HAS_VIEWPORT
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
-    ImGui::SetNextWindowSize(viewport->WorkSize);
+    if (m_frameCount >= 2 || !CanMakeMainWindowSizeFitContent())
+        ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::SetNextWindowViewport(viewport->ID);
 #else 
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+    if (m_frameCount >= 2 || !CanMakeMainWindowSizeFitContent())
+        ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
 #endif
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -266,6 +271,22 @@ bool ImApp::Context::BeginMainWindowContent() noexcept
 
 void ImApp::Context::EndMainWindowContent() noexcept
 {
+    assert(m_mainWindow != nullptr);
+
+    if (m_frameCount == 1 && CanMakeMainWindowSizeFitContent())
+    {
+        static constexpr int titleBarButtonsWidthHeuristic = 215;
+        static constexpr int titleBarCharacherWithHeuristic = 8;
+
+        const ImVec2 mainWindowContentSize = ImGui::GetWindowSize();
+
+        const int mainWindowMinWidth = static_cast<int>(mainWindowTitleLen) * titleBarCharacherWithHeuristic + titleBarButtonsWidthHeuristic;
+        const int mainWindowWantedWidth = std::max(static_cast<int>(mainWindowContentSize.x), mainWindowMinWidth);
+        const int mainWindowWantedHeight = static_cast<int>(mainWindowContentSize.y);
+
+        SetMainWindowSize(mainWindowWantedWidth, mainWindowWantedHeight);
+    }
+
     ImGui::End();
     ImGui::PopStyleVar(1);
 }
@@ -278,6 +299,20 @@ void ImApp::Context::OnMainWindowResized() noexcept
 
         glfwSetWindowSizeCallback(m_mainWindow, nullptr); // We don't need callback anymore
     }
+}
+
+void ImApp::Context::SetMainWindowSize(int width, int height) noexcept
+{
+    m_isCurrentlyResizingMainWindow = true;
+
+    glfwSetWindowSize(m_mainWindow, width, height);
+
+    m_isCurrentlyResizingMainWindow = false;
+}
+
+bool ImApp::Context::CanMakeMainWindowSizeFitContent() const noexcept
+{
+    return !m_mainWindowSizeHasBeenLoaded;
 }
 
 void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
@@ -300,10 +335,7 @@ void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
         if (std::sscanf(line, "MainWindowSize=%d,%d\n", &mainWindowWidth, &mainWindowHeight) == 2)
         {
             m_mainWindowSizeHasBeenLoaded = true;
-
-            m_isCurrentlyResizingMainWindow = true;
-            glfwSetWindowSize(m_mainWindow, mainWindowWidth, mainWindowHeight);
-            m_isCurrentlyResizingMainWindow = false;
+            SetMainWindowSize(mainWindowWidth, mainWindowHeight);
 
             return;
         }
