@@ -18,6 +18,9 @@ namespace ImApp
 	template <class F>
 	int Run(const char* mainWindowTitle, F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)())); // UpdateFunc can return a bool to indicate to close
 
+	template <class F>
+	int Run(const char* mainWindowTitle, AppFlags appFlags, F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)())); // UpdateFunc can return a bool to indicate to close
+
 	// Low level api
 	bool Init(const char* mainWindowTitle, AppFlags appFlags = AppFlags::None()) noexcept;
 

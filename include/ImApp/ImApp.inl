@@ -37,7 +37,13 @@ namespace ImApp
 template <class F>
 int ImApp::Run(const char* mainWindowTitle, F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)()))
 {
-	if (Init(mainWindowTitle))
+	return Run(mainWindowTitle, AppFlags::None(), IMAPP_FWD(updateFunc));
+}
+
+template <class F>
+int ImApp::Run(const char* mainWindowTitle, AppFlags appFlags, F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)()))
+{
+	if (Init(mainWindowTitle, appFlags))
 	{
 		for (bool open = true; open; )
 		{
