@@ -42,7 +42,7 @@ int main()
     std::vector<std::string> locales = { "de_DE", "en_GB", "en_US", "fr_FR", "ja_JP", "kr_KR" };
     auto selectedLocaleIt = addDefaultLocaleAndGetIt(locales);
 
-    return ImApp::Run("Locale Explorer", [&]()
+    return ImApp::Run("ImApp_Example_LocaleExplorer", [&]()
     {
         if (ImApp::BeginMainWindowContent())
         {
