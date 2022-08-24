@@ -71,6 +71,7 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
     m_terminateFunc = &Context::StandardTerminateFunc;
     m_manageMainCloseButtonFunc = &Context::HideMainCloseButtonIfNeeded;
     m_mainWindowHasBeenResizedByUser = false;
+    m_isCurrentlyResizingMainWindow = false;
 
     glfwSetWindowUserPointer(m_mainWindow, this);
 
