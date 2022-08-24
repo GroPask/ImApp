@@ -11,6 +11,8 @@ namespace ImApp
     class Context
     {
     public:
+        void SetNextMainWindowSize(int witdh, int height, Cond cond) noexcept;
+
         bool Init(const char* mainWindowTitle, AppFlags appFlags) noexcept;
 
         bool PollEvents(bool* open) noexcept;
@@ -37,6 +39,11 @@ namespace ImApp
         int NotInitTerminateFunc() noexcept;
         int OnlyGlfwInitTerminateFunc() noexcept;
         int StandardTerminateFunc() noexcept;
+
+        bool m_mainWindowSizeHasBeenSet = false;
+        int m_mainWindowWidth;
+        int m_mainWindowHeight;
+        Cond m_mainWindowSizeCond;
 
         AppFlags m_appFlags;
         int mainWindowTitleLen;

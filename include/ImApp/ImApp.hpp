@@ -7,7 +7,13 @@
 
 namespace ImApp
 {
-	// Flags
+	// Enums
+	enum class Cond
+	{
+		Always,       // No condition (always set the variable)
+		FirstUseEver, // Set the variable if the object/window has no persistently saved data (no entry in .ini file)
+	};
+
 	enum class AppFlag
 	{
 		MainWindow_NoResize = (1 << 0),
@@ -31,6 +37,9 @@ namespace ImApp
 	void Update(bool* open, F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)()));
 
 	int Terminate() noexcept;
+
+	// Configuration api
+	void SetNextMainWindowSize(int witdh, int height, Cond cond = Cond::Always) noexcept;
 
 	// Main window content api
 	bool BeginMainWindowContent() noexcept;

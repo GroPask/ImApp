@@ -32,6 +32,11 @@ int ImApp::Terminate() noexcept
     return ImAppGlobalContext.Terminate();
 }
 
+void ImApp::SetNextMainWindowSize(int witdh, int height, Cond cond) noexcept
+{
+    ImAppGlobalContext.SetNextMainWindowSize(witdh, height, cond);
+}
+
 bool ImApp::BeginMainWindowContent() noexcept
 {
     return ImAppGlobalContext.BeginMainWindowContent();

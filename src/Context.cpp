@@ -22,6 +22,14 @@
 
 #pragma warning(disable : 4996)
 
+void ImApp::Context::SetNextMainWindowSize(int witdh, int height, Cond cond) noexcept
+{
+    m_mainWindowSizeHasBeenSet = true;
+    m_mainWindowWidth = witdh;
+    m_mainWindowHeight = height;    
+    m_mainWindowSizeCond = cond;
+}
+
 bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexcept
 {
     assert(m_mainWindow == nullptr);
@@ -63,7 +71,11 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     // Create window with graphics context
-    m_mainWindow = glfwCreateWindow(1280, 720, mainWindowTitle, nullptr, nullptr);
+    if (m_mainWindowSizeHasBeenSet)
+        m_mainWindow = glfwCreateWindow(m_mainWindowWidth, m_mainWindowHeight, mainWindowTitle, nullptr, nullptr);
+    else
+        m_mainWindow = glfwCreateWindow(1280, 720, mainWindowTitle, nullptr, nullptr);        
+
     if (m_mainWindow == nullptr)
         return false;
 
@@ -312,7 +324,7 @@ void ImApp::Context::SetMainWindowSize(int width, int height) noexcept
 
 bool ImApp::Context::CanMakeMainWindowSizeFitContent() const noexcept
 {
-    return !m_mainWindowSizeHasBeenLoaded;
+    return (!m_mainWindowSizeHasBeenSet && !m_mainWindowSizeHasBeenLoaded);
 }
 
 void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
@@ -328,7 +340,8 @@ void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
         return;
     }
 
-    if (!m_appFlags.Has(AppFlag::MainWindow_NoResize)) // Force ignore maybe previously saved size (with a version of this app without NoResize flag)
+    if (!m_appFlags.Has(AppFlag::MainWindow_NoResize) && // Force ignore maybe previously saved size (with a version of this app without NoResize flag)
+        (!m_mainWindowSizeHasBeenSet || m_mainWindowSizeCond != Cond::Always)) // If MainWindowSize as been setted and Cond == Always, no needs to load size because we want to use the size given by the user at each new app launch
     {
         int mainWindowWidth;
         int mainWindowHeight;
@@ -352,7 +365,8 @@ void ImApp::Context::WriteAllMainSaveData(ImGuiTextBuffer& textBuffer) const noe
 
     textBuffer.appendf("MainWindowPos=%d,%d\n", mainWindowX, mainWindowY);
 
-    if (m_mainWindowSizeHasBeenLoaded || m_mainWindowHasBeenResizedByUser)
+    if ((m_mainWindowSizeHasBeenLoaded || m_mainWindowHasBeenResizedByUser) && 
+        (!m_mainWindowSizeHasBeenSet || m_mainWindowSizeCond != Cond::Always)) // If MainWindowSize as been setted and Cond == Always, no needs to save size because we want to use the size given by the user at each new app launch
     {
         int mainWindowWidth;
         int mainWindowHeight;
@@ -412,6 +426,7 @@ int ImApp::Context::StandardTerminateFunc() noexcept
     glfwDestroyWindow(m_mainWindow);
     glfwTerminate();
 
+    m_mainWindowSizeHasBeenSet = false;
     m_terminateFunc = &Context::NotInitTerminateFunc;
     m_mainWindow = nullptr;
 
