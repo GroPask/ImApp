@@ -6,6 +6,7 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(IMAPP_MASTER_PROJECT TRUE)
 endif ()
 
+option(IMAPP_BUILD_EXAMPLES "Build examples programs" ${IMAPP_MASTER_PROJECT})
 option(IMAPP_BUILD_TESTS "Build tests programs" ${IMAPP_MASTER_PROJECT})
 option(IMAPP_INSTALL "Generate the install target" ${IMAPP_MASTER_PROJECT})
 
@@ -32,6 +33,10 @@ target_sources(${PROJECT_NAME} PRIVATE conanfile.txt)
 
 add_subdirectory(cmake)
 add_subdirectory(src)
+
+if (IMAPP_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif ()
 
 if (IMAPP_BUILD_TESTS)
     add_subdirectory(tests)
