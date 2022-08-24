@@ -269,10 +269,14 @@ void ImApp::Context::EndMainWindowContent() noexcept
     ImGui::PopStyleVar(1);
 }
 
-void ImApp::Context::OnMainWindowResized()
+void ImApp::Context::OnMainWindowResized() noexcept
 {
     if (!currentlyResizeMainWindow)
+    {
         mainWindowHasBeenResizedByUser = true;
+
+        glfwSetWindowSizeCallback(mainWindow, nullptr); // We don't need callback anymore
+    }
 }
 
 void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept

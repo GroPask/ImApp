@@ -23,7 +23,7 @@ namespace ImApp
         void EndMainWindowContent() noexcept;
 
     private:
-        void OnMainWindowResized();
+        void OnMainWindowResized() noexcept;
 
         void ReadMainSaveDataLine(const char* line) noexcept;
         void WriteAllMainSaveData(ImGuiTextBuffer& textBuffer) const noexcept;
