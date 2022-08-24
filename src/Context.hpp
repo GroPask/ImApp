@@ -7,8 +7,9 @@ struct GLFWwindow;
 
 namespace ImApp
 {
-    struct Context
-    {        
+    class Context
+    {
+    public:
         bool Init(const char* mainWindowTitle, ImApp::AppFlags appFlags) noexcept;
 
         bool PollEvents(bool* open) noexcept;
@@ -20,6 +21,9 @@ namespace ImApp
         bool BeginMainWindowContent() noexcept;
         void EndMainWindowContent() noexcept;
 
+    private:
+        void OnMainWindowResized();
+
         void HideMainCloseButtonIfNeeded(bool* open) noexcept;
         void ShowMainCloseButtonIfNeeded(bool* open) noexcept;
 
@@ -27,10 +31,14 @@ namespace ImApp
         int OnlyGlfwInitTerminateFunc() noexcept;
         int StandardTerminateFunc() noexcept;
 
+        unsigned long long frameCount = 0;
+
         int (Context::* terminateFunc)() noexcept = &Context::NotInitTerminateFunc;
         void (Context::* manageMainCloseButtonFunc)(bool* open) noexcept = &Context::HideMainCloseButtonIfNeeded;
 
         GLFWwindow* mainWindow = nullptr;
+        bool mainWindowHasBeenResizedByUser = false;
+        bool currentlyResizeMainWindow = false;
     };
 }
 

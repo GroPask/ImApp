@@ -16,26 +16,19 @@
 #include <cstdio>
 #include <cstdlib>
 
-namespace
-{
-	constexpr ImVec4 ClearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-	void GlfwErrorCallback(int error, const char* description) noexcept
-	{
-		std::fprintf(stderr, "Glfw Error %d: %s\n", error, description);
-	}
-}
-
 bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexcept
 {
     assert(mainWindow == nullptr);
 
-    glfwSetErrorCallback(&GlfwErrorCallback);
+    glfwSetErrorCallback([](int error, const char* description)
+    {
+        std::fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+    });
+
     if (!glfwInit())
         return false;
 
     terminateFunc = &Context::OnlyGlfwInitTerminateFunc;
-    manageMainCloseButtonFunc = &Context::HideMainCloseButtonIfNeeded;
 
     // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -68,7 +61,22 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
     if (mainWindow == nullptr)
         return false;
 
+    frameCount = 0;
     terminateFunc = &Context::StandardTerminateFunc;
+    manageMainCloseButtonFunc = &Context::HideMainCloseButtonIfNeeded;
+    mainWindowHasBeenResizedByUser = false;
+
+    glfwSetWindowUserPointer(mainWindow, this);
+
+    glfwSetWindowSizeCallback(mainWindow, [](GLFWwindow* window, int /*width*/, int /*height*/)
+    {
+        assert(window != nullptr);
+
+        ImApp::Context* context = static_cast<ImApp::Context*>(glfwGetWindowUserPointer(window));
+        assert(context != nullptr);
+
+        context->OnMainWindowResized();
+    });
 
     glfwMakeContextCurrent(mainWindow);
     glfwSwapInterval(1); // Enable vsync
@@ -158,12 +166,14 @@ void ImApp::Context::EndFrame() noexcept
 {
     assert(mainWindow != nullptr);
 
+    static constexpr ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
     // Rendering
     ImGui::Render();
     int display_w, display_h;
     glfwGetFramebufferSize(mainWindow, &display_w, &display_h);
     glViewport(0, 0, display_w, display_h);
-    glClearColor(ClearColor.x * ClearColor.w, ClearColor.y * ClearColor.w, ClearColor.z * ClearColor.w, ClearColor.w);
+    glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -181,6 +191,8 @@ void ImApp::Context::EndFrame() noexcept
     }
 
     glfwSwapBuffers(mainWindow);
+
+    ++frameCount;
 }
 
 int ImApp::Context::Terminate() noexcept
@@ -215,6 +227,12 @@ void ImApp::Context::EndMainWindowContent() noexcept
 {
     ImGui::End();
     ImGui::PopStyleVar(1);
+}
+
+void ImApp::Context::OnMainWindowResized()
+{
+    if (!currentlyResizeMainWindow)
+        mainWindowHasBeenResizedByUser = true;
 }
 
 void ImApp::Context::HideMainCloseButtonIfNeeded(bool* open) noexcept
