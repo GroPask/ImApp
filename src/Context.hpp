@@ -3,6 +3,7 @@
 
 #include "ImApp/ImApp.hpp"
 
+struct ImGuiTextBuffer;
 struct GLFWwindow;
 
 namespace ImApp
@@ -24,6 +25,9 @@ namespace ImApp
     private:
         void OnMainWindowResized();
 
+        void ReadMainSaveDataLine(const char* line) noexcept;
+        void WriteAllMainSaveData(ImGuiTextBuffer& textBuffer) const noexcept;
+
         void HideMainCloseButtonIfNeeded(bool* open) noexcept;
         void ShowMainCloseButtonIfNeeded(bool* open) noexcept;
 
@@ -31,7 +35,13 @@ namespace ImApp
         int OnlyGlfwInitTerminateFunc() noexcept;
         int StandardTerminateFunc() noexcept;
 
+        AppFlags m_appFlags;
+
         unsigned long long frameCount = 0;
+
+        bool mainWindowSizeHasBeenLoaded = false;
+        int mainWindowLoadedWidth = 0;
+        int mainWindowLoadedHeight = 0;
 
         int (Context::* terminateFunc)() noexcept = &Context::NotInitTerminateFunc;
         void (Context::* manageMainCloseButtonFunc)(bool* open) noexcept = &Context::HideMainCloseButtonIfNeeded;

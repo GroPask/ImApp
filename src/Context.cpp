@@ -4,6 +4,7 @@
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_internal.h>
 #include <imgui.h>
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -15,6 +16,9 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+
+#pragma warning(disable : 4996)
 
 bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexcept
 {
@@ -61,7 +65,9 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
     if (mainWindow == nullptr)
         return false;
 
+    m_appFlags = appFlags;
     frameCount = 0;
+    mainWindowSizeHasBeenLoaded = false;
     terminateFunc = &Context::StandardTerminateFunc;
     manageMainCloseButtonFunc = &Context::HideMainCloseButtonIfNeeded;
     mainWindowHasBeenResizedByUser = false;
@@ -103,6 +109,40 @@ bool ImApp::Context::Init(const char* mainWindowTitle, AppFlags appFlags) noexce
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
+
+    static constexpr const char* imAppSaveDataName = "ImApp";
+    static constexpr const char* imAppMainSaveDataEntryName = "MainData";
+
+    ImGuiSettingsHandler settingsHandler;
+    settingsHandler.TypeName = imAppSaveDataName;
+    settingsHandler.TypeHash = ImHashStr(imAppSaveDataName);
+    settingsHandler.ReadOpenFn = [](ImGuiContext* /*ctx*/, ImGuiSettingsHandler* /*handler*/, const char* name) -> void*
+    {
+        if (std::strcmp(name, imAppMainSaveDataEntryName) == 0)
+            return reinterpret_cast<void*>(1);
+
+        return nullptr;
+    };
+    settingsHandler.ReadLineFn = [](ImGuiContext* /*ctx*/, ImGuiSettingsHandler* handler, void* /*entry*/, const char* line)
+    {
+        Context* context = static_cast<Context*>(handler->UserData);
+        assert(context != nullptr);
+
+        context->ReadMainSaveDataLine(line);
+    };
+    settingsHandler.WriteAllFn = [](ImGuiContext* /*ctx*/, ImGuiSettingsHandler* handler, ImGuiTextBuffer* out_buf)
+    {
+        Context* context = static_cast<Context*>(handler->UserData);
+        assert(context != nullptr);
+
+        out_buf->appendf("[%s][%s]\n", handler->TypeName, imAppMainSaveDataEntryName);
+
+        context->WriteAllMainSaveData(*out_buf);
+
+        out_buf->appendf("\n");
+    };
+    settingsHandler.UserData = this;
+    ImGui::AddSettingsHandler(&settingsHandler);
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
@@ -233,6 +273,56 @@ void ImApp::Context::OnMainWindowResized()
 {
     if (!currentlyResizeMainWindow)
         mainWindowHasBeenResizedByUser = true;
+}
+
+void ImApp::Context::ReadMainSaveDataLine(const char* line) noexcept
+{
+    assert(line != nullptr);
+    assert(mainWindow != nullptr);
+
+    int mainWindowX;
+    int mainWindowY;
+    if (std::sscanf(line, "MainWindowPos=%d,%d\n", &mainWindowX, &mainWindowY) == 2)
+    {
+        glfwSetWindowPos(mainWindow, mainWindowX, mainWindowY);
+        return;
+    }
+
+    if (!m_appFlags.Has(AppFlag::MainWindow_NoResize)) // Force ignore maybe previously saved size (with a version of this app without NoResize flag)
+    {
+        int mainWindowWidth;
+        int mainWindowHeight;
+        if (std::sscanf(line, "MainWindowSize=%d,%d\n", &mainWindowWidth, &mainWindowHeight) == 2)
+        {
+            mainWindowSizeHasBeenLoaded = true;
+
+            currentlyResizeMainWindow = true;
+            glfwSetWindowSize(mainWindow, mainWindowWidth, mainWindowHeight);
+            currentlyResizeMainWindow = false;
+
+            return;
+        }
+    }
+}
+
+void ImApp::Context::WriteAllMainSaveData(ImGuiTextBuffer& textBuffer) const noexcept
+{
+    assert(mainWindow != nullptr);
+
+    int mainWindowX;
+    int mainWindowY;
+    glfwGetWindowPos(mainWindow, &mainWindowX, &mainWindowY);
+
+    textBuffer.appendf("MainWindowPos=%d,%d\n", mainWindowX, mainWindowY);
+
+    if (mainWindowSizeHasBeenLoaded || mainWindowHasBeenResizedByUser)
+    {
+        int mainWindowWidth;
+        int mainWindowHeight;
+        glfwGetWindowSize(mainWindow, &mainWindowWidth, &mainWindowHeight);
+
+        textBuffer.appendf("MainWindowSize=%d,%d\n", mainWindowWidth, mainWindowHeight);
+    }
 }
 
 void ImApp::Context::HideMainCloseButtonIfNeeded(bool* open) noexcept
