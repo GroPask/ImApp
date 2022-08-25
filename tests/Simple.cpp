@@ -2,13 +2,13 @@
 
 int main()
 {
-    return ImApp::Run("MyApp", [&]()
+    return ImApp::Run("ImApp_Test_Simple", [&]()
     {
-        if (ImApp::BeginMainWindowContent())
-            ImGui::Text("Hello World");
-        ImApp::EndMainWindowContent();
-
-        ImGui::Begin("Other Window");
-        ImGui::End();
+        ImGui::Text("Hello World");
+    
+        if (ImGui::Button("Close"))
+            return false;
+    
+        return true;
     });
 }
