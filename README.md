@@ -34,4 +34,4 @@ target_link_libraries(MyApp PRIVATE ImApp::ImApp)
 
 ## License
 
-As [Dear ImGui](https://github.com/ocornut/imgui) ImApp is licensed under the MIT License, see [LICENSE.txt](https://github.com/GroPask/ImApp/blob/main/LICENSE.txt) for more information.
+ImApp is licensed under the MIT License, see [LICENSE.txt](https://github.com/GroPask/ImApp/blob/main/LICENSE.txt) for more information.
