@@ -14,11 +14,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Install conan
+      run: pip3 install conan
+      
+    - name: Install dependencies
+      run: conan install -if ${{github.workspace}}/build -b missing -s build_type=${{ matrix.build_type }}
 
     - name: Configure
-      run: |
-        ls
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
