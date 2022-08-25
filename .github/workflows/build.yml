@@ -24,13 +24,18 @@ jobs:
     - name: Install conan
       run: sudo pip3 install conan
       
-    - name: Install dependencies
-      run: |
-        sudo conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
-        conan install -if ${{github.workspace}}/build -s build_type=${{ matrix.build_type }} .
+    - name: Install conan dependencies Linux
+      if: runner.os == 'Linux'
+      run: sudo conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
+        
+    - name: Install conan dependencies Windows
+      if: runner.os == 'Windows'
+      run: conan install -b missing -s build_type=${{ matrix.build_type }} --no-imports .
 
     - name: Configure
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      run: |
+        conan install -if ${{github.workspace}}/build -s build_type=${{ matrix.build_type }} .
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
