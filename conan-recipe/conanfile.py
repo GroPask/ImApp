@@ -46,6 +46,7 @@ class ImAppConan(ConanFile):
     def build(self):
         cmake = CMake(self)
         cache_entries = {
+            "IMAPP_BUILD_EXAMPLES": "False",
             "IMAPP_BUILD_TESTS": "False"
         }
         cmake.configure(variables=cache_entries)
