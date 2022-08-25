@@ -15,6 +15,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
+    - name: Install Linux system dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install libgl-dev
+    
     - name: Install conan
       run: pip3 install conan
       
