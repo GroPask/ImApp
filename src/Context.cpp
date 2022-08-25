@@ -275,7 +275,7 @@ bool ImApp::Context::BeginMainWindowContent() noexcept
 #endif
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+    ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
     const int mainWindowIsIconified = glfwGetWindowAttrib(m_mainWindow, GLFW_ICONIFIED);
     return !static_cast<bool>(mainWindowIsIconified);
