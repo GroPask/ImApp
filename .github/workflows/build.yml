@@ -25,7 +25,9 @@ jobs:
       run: sudo pip3 install conan
       
     - name: Install dependencies
-      run: sudo conan install -if ${{github.workspace}}/build -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install .
+      run: |
+        sudo conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
+        conan install -if ${{github.workspace}}/build -s build_type=${{ matrix.build_type }} .
 
     - name: Configure
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
