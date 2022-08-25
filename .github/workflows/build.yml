@@ -19,7 +19,7 @@ jobs:
       run: pip3 install conan
       
     - name: Install dependencies
-      run: conan install -if ${{github.workspace}}/build -b missing -s build_type=${{ matrix.build_type }}
+      run: conan install -if ${{github.workspace}}/build -b missing -s build_type=${{ matrix.build_type }} .
 
     - name: Configure
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
