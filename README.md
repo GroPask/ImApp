@@ -5,8 +5,7 @@ ImApp is an Open Source library allowing you to easily write standalone [Dear Im
 
 ## Basic usage
 
-### C++
-
+##### C++
 ```c++
 #include <ImApp/ImApp.hpp>
 
@@ -18,8 +17,11 @@ int main()
     });
 }
 ```
-### CMake
+
+##### CMake
 ```cmake
+cmake_minimum_required(VERSION 3.16.0)
+
 project(MyApp)
 
 include(FetchContent)
@@ -29,3 +31,7 @@ FetchContent_MakeAvailable(ImApp)
 add_executable(MyApp main.cpp)
 target_link_libraries(MyApp PRIVATE ImApp::ImApp)
 ```
+
+## License
+
+As [Dear ImGui](https://github.com/ocornut/imgui) ImApp is licensed under the MIT License, see [LICENSE.txt](https://github.com/GroPask/ImApp/blob/main/LICENSE.txt) for more information.
