@@ -15,28 +15,43 @@ jobs:
       matrix:
         build_type: ['Release']
         os: [ubuntu-latest, windows-latest]
+        with_conan: [true, false]
 
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Install Linux system dependencies
-      if: runner.os == 'Linux'
+
+    - name: Install Linux system dependencies without Conan
+      if: runner.os == 'Linux' && ! ${{with_conan}}
       run: |
         sudo apt update
         sudo apt install libgl-dev xorg-dev
-        
-    - name: Install Conan
-      run: pip3 install conan          
-        
-    - name: Run Conan
-      run: conan install -if ${{github.workspace}}/build -b missing -s build_type=${{ matrix.build_type }} .
 
-    - name: Configure
-      run: cmake -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+    - name: Install Conan
+      if: ${{with_conan}}
+      run: pip3 install conan
+
+    - name: Run Conan Linux
+      if: ${{with_conan}} && runner.os == 'Linux'
+      run: |
+        # Use sudo because Conan will install system package
+        sudo PYTHONPATH=~/.local/lib/python3.8/site-packages env "PATH=$PATH" conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
+        conan install -if ${{github.workspace}}/build -s build_type=${{matrix.build_type}} .
+
+    - name: Run Conan Windows
+      if: ${{with_conan}} && runner.os == 'Windows'
+      run: conan install -if ${{github.workspace}}/build -b missing -s build_type=${{matrix.build_type}} .
+
+    - name: Configure with Conan
+      if: ${{with_conan}}
+      run: cmake -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
+
+    - name: Configure without Conan
+      if: ! ${{with_conan}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{ matrix.build_type }}   
+      run: ctest -C ${{matrix.build_type}}
