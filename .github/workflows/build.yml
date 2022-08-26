@@ -43,7 +43,7 @@ jobs:
 
     - name: Configure with Conan
       if: ${{ matrix.package_manager == 'conan' }}
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
 
     - name: Configure without Conan
       if: ${{ matrix.package_manager == 'none' }}
