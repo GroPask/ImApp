@@ -24,15 +24,14 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libgl-dev
-        sudo pip3 install conan
         
-    - name: Install Windows system dependencies
-      if: runner.os == 'Windows'
+    - name: Install Conan
       run: pip3 install conan
           
     - name: Install conan dependencies Linux
       if: runner.os == 'Linux'
-      run: sudo conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
+      # Use sudo because of some needed system package
+      run: sudo PYTHONPATH=~/.local/lib/python3.8/site-packages env "PATH=$PATH" conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
         
     - name: Install conan dependencies Windows
       if: runner.os == 'Windows'
