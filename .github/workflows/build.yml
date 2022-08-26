@@ -29,11 +29,10 @@ jobs:
       run: pip3 install conan          
         
     - name: Run Conan
-      if: runner.os == 'Windows'
       run: conan install -if ${{github.workspace}}/build -b missing -s build_type=${{ matrix.build_type }} .
 
     - name: Configure
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      run: cmake -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
