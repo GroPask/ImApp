@@ -10,6 +10,6 @@ function(imapp_add_test testName)
     )
 endfunction()
 
-imapp_add_test(simple)
+imapp_add_test(Simple)
 
 dp_configure_target(${PROJECT_NAME}_Test_Simple VS_STARTUP_PROJECT)
