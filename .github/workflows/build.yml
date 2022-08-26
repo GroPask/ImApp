@@ -23,24 +23,17 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt update
-        sudo apt install libgl-dev
+        sudo apt install libgl-dev xorg-dev
         
     - name: Install Conan
-      run: pip3 install conan
-          
-    - name: Install conan dependencies Linux
-      if: runner.os == 'Linux'
-      # Use sudo because of some needed system package
-      run: sudo PYTHONPATH=~/.local/lib/python3.8/site-packages env "PATH=$PATH" conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
+      run: pip3 install conan          
         
-    - name: Install conan dependencies Windows
+    - name: Run Conan
       if: runner.os == 'Windows'
-      run: conan install -b missing -s build_type=${{ matrix.build_type }} --no-imports .
+      run: conan install -if ${{github.workspace}}/build -b missing -s build_type=${{ matrix.build_type }} .
 
     - name: Configure
-      run: |
-        conan install -if ${{github.workspace}}/build -s build_type=${{ matrix.build_type }} .
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
