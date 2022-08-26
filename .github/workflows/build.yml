@@ -34,7 +34,7 @@ jobs:
       if: ${{ matrix.package_manager == 'conan' && runner.os == 'Linux' }}
       run: |
         # Use sudo because Conan will install system package
-        sudo PYTHONPATH=~/.local/lib/python3.8/site-packages env "PATH=$PATH" conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
+        sudo PYTHONPATH=~/.local/lib/python3.8/site-packages CONAN_SYSREQUIRES_MODE=enabled env "PATH=$PATH" conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
         conan install -if ${{github.workspace}}/build -s build_type=${{matrix.build_type}} .
 
     - name: Run Conan Windows
