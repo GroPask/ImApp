@@ -8,8 +8,6 @@
 
 #include <ctime>
 
-#pragma warning(disable : 4996)
-
 namespace
 {
     auto addDefaultLocaleAndGetIt(std::vector<std::string>& inOutLocales)
@@ -29,8 +27,13 @@ namespace
     {
         const std::time_t now = std::time(nullptr);
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
+        const std::tm tmNow = *std::localtime(&now);
+#pragma warning(pop)
+
         char timeTextBuffer[256];
-        if (std::strftime(timeTextBuffer, sizeof(timeTextBuffer), "%c\n", std::localtime(&now)) == 0)
+        if (std::strftime(timeTextBuffer, sizeof(timeTextBuffer), "%c\n", &tmNow) == 0)
             return {};
 
         return timeTextBuffer;
@@ -55,11 +58,14 @@ int main()
                 {
                     bool currentLocaleIsSelected = (selectedLocaleIt == localeIt);
 
-                    if (ImGui::Selectable(localeIt->c_str(), &currentLocaleIsSelected))
+                    if (ImGui::Selectable(localeIt->c_str(), currentLocaleIsSelected))
                     {
                         selectedLocaleIt = localeIt;
                         std::locale::global(std::locale(*selectedLocaleIt));
                     }
+
+                    if (currentLocaleIsSelected)
+                        ImGui::SetItemDefaultFocus();
                 }
 
                 ImGui::EndCombo();
