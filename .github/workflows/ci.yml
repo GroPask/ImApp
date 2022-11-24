@@ -1,0 +1,57 @@
+name: build
+
+on:
+  workflow_dispatch:
+  #push:
+  #  branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        build_type: ['Release']
+        os: [ubuntu-latest, windows-latest]
+        package_manager: ['none', 'conan']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Linux system dependencies without Conan
+      if: ${{ runner.os == 'Linux' && matrix.package_manager == 'none' }}
+      run: |
+        sudo apt update
+        sudo apt install libgl-dev xorg-dev
+
+    - name: Install Conan
+      if: ${{ matrix.package_manager == 'conan' }}
+      run: pip3 install conan
+
+    - name: Run Conan Linux
+      if: ${{ matrix.package_manager == 'conan' && runner.os == 'Linux' }}
+      run: |
+        # Use sudo because Conan will install system package
+        sudo PYTHONPATH=~/.local/lib/python3.8/site-packages CONAN_SYSREQUIRES_MODE=enabled env "PATH=$PATH" conan install -b missing -s build_type=${{ matrix.build_type }} -c tools.system.package_manager:mode=install --no-imports .
+        conan install -if ${{github.workspace}}/build -s build_type=${{matrix.build_type}} .
+
+    - name: Run Conan Windows
+      if: ${{ matrix.package_manager == 'conan' && runner.os == 'Windows' }}
+      run: conan install -if ${{github.workspace}}/build -b missing -s build_type=${{matrix.build_type}} .
+
+    - name: Configure with Conan
+      if: ${{ matrix.package_manager == 'conan' }}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
+
+    - name: Configure without Conan
+      if: ${{ matrix.package_manager == 'none' }}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{matrix.build_type}}
