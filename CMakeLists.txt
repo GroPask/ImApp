@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16.0)
+cmake_minimum_required(VERSION 3.16.0...3.25.0)
 
 project(ImApp VERSION 0.0.1 LANGUAGES CXX)
 
@@ -10,12 +10,18 @@ option(IMAPP_BUILD_EXAMPLES "Build examples programs" ${IMAPP_MASTER_PROJECT})
 option(IMAPP_BUILD_TESTS "Build tests programs" ${IMAPP_MASTER_PROJECT})
 option(IMAPP_INSTALL "Generate the install target" ${IMAPP_MASTER_PROJECT})
 
-include(cmake/Dependencies.cmake)
+include(FetchContent)
+FetchContent_Declare(dpCMake URL https://github.com/GroPask/dpCMake/archive/refs/heads/main.zip)
+FetchContent_MakeAvailable(dpCMake)
+include(${dpcmake_SOURCE_DIR}/dpCMake.cmake)
 
 dp_configure_global(
     USE_FOLDERS
     DEFAULT_CONFIGURATIONS Debug Release
+    DEPENDENCIES_TARGETS_FOLDER ImAppDependencies
 )
+
+include(cmake/Dependencies.cmake)
 
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
