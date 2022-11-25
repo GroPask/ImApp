@@ -1,14 +1,10 @@
-cmake_minimum_required(VERSION 3.16.0...3.25.0)
+cmake_minimum_required(VERSION 3.21.0...3.25.0)
 
 project(ImApp VERSION 0.0.1 LANGUAGES CXX)
 
-if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    set(IMAPP_MASTER_PROJECT TRUE)
-endif ()
-
-option(IMAPP_BUILD_EXAMPLES "Build examples programs" ${IMAPP_MASTER_PROJECT})
-option(IMAPP_BUILD_TESTS "Build tests programs" ${IMAPP_MASTER_PROJECT})
-option(IMAPP_INSTALL "Generate the install target" ${IMAPP_MASTER_PROJECT})
+option(IMAPP_BUILD_EXAMPLES "Build examples programs" ${PROJECT_IS_TOP_LEVEL})
+option(IMAPP_BUILD_TESTS "Build tests programs" ${PROJECT_IS_TOP_LEVEL})
+option(IMAPP_INSTALL "Generate the install target" ${PROJECT_IS_TOP_LEVEL})
 
 include(FetchContent)
 FetchContent_Declare(dpCMake URL https://github.com/GroPask/dpCMake/archive/refs/heads/main.zip)
