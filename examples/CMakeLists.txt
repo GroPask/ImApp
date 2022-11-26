@@ -9,6 +9,7 @@ function(imapp_add_example exampleName)
     )
 endfunction()
 
+imapp_add_example(DockSpaceMainWindow)
 imapp_add_example(HelloWorld)
 imapp_add_example(LocaleExplorer)
 imapp_add_example(MainWindowContent)
