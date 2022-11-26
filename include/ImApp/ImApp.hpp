@@ -21,6 +21,12 @@ namespace ImApp
 	};
 	IMAPP_DECLARE_FLAGS(AppFlags, AppFlag)
 
+	enum class MainWindowContentFlag
+	{
+		MenuBar = (1 << 0)
+	};
+	IMAPP_DECLARE_FLAGS(MainWindowContentFlags, MainWindowContentFlag)
+
 	// High level api
 	template <class F>
 	int Run(const char* mainWindowTitle, F&& updateFunc) noexcept(noexcept(IMAPP_FWD(updateFunc)())); // UpdateFunc can return a bool to indicate to close
@@ -43,7 +49,7 @@ namespace ImApp
 	void SetNextMainWindowSize(int witdh, int height, Cond cond = Cond::Always) noexcept;
 
 	// Main window content api
-	bool BeginMainWindowContent() noexcept;
+	bool BeginMainWindowContent(MainWindowContentFlags mainWindowContentFlags = MainWindowContentFlags::None()) noexcept;
 	void EndMainWindowContent() noexcept;
 }
 

@@ -256,7 +256,7 @@ int ImApp::Context::Terminate() noexcept
     return (this->*m_terminateFunc)();
 }
 
-bool ImApp::Context::BeginMainWindowContent() noexcept
+bool ImApp::Context::BeginMainWindowContent(MainWindowContentFlags mainWindowContentFlags) noexcept
 {
     assert(m_mainWindow != nullptr);
 
@@ -274,8 +274,12 @@ bool ImApp::Context::BeginMainWindowContent() noexcept
         ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
 #endif
 
+    ImGuiWindowFlags mainWindowContentImGuiFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus;
+    if (mainWindowContentFlags.Has(MainWindowContentFlag::MenuBar))
+        mainWindowContentImGuiFlags |= ImGuiWindowFlags_MenuBar;
+
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::Begin("ImAppMainWindowContent", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus);
+    ImGui::Begin("ImAppMainWindowContent", nullptr, mainWindowContentImGuiFlags);
 
     const int mainWindowIsIconified = glfwGetWindowAttrib(m_mainWindow, GLFW_ICONIFIED);
     return !static_cast<bool>(mainWindowIsIconified);

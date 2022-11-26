@@ -21,7 +21,7 @@ namespace ImApp
 
         int Terminate() noexcept;
 
-        bool BeginMainWindowContent() noexcept;
+        bool BeginMainWindowContent(MainWindowContentFlags mainWindowContentFlags) noexcept;
         void EndMainWindowContent() noexcept;
 
     private:
